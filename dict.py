@@ -3,7 +3,9 @@
 from Tkinter import *
 from game import Game
 import argparse
-
+import os
+import subprocess
+from datetime import datetime
 
 class Dictionary:
 
@@ -89,11 +91,33 @@ class Dictionary:
 		self._a_entry.delete(0, 'end')
 		self._update_fields()
 
+def write_updated():
+	f = open("updated", 'w')
+	f.write(datetime.now().strftime("%d/%m/%Y"))
+	f.close()
+
+def read_updated():
+	f = open("updated", 'r')
+	content = f.readlines()
+	d = datetime.strptime(content[0].strip(), "%d/%m/%Y")
+	return d
 
 if __name__=="__main__":
 	parser = argparse.ArgumentParser()
+	parser.add_argument("-p", "--parent", required = True)
 	parser.add_argument("-d", "--dictionary", default = "words.csv")
 	args = parser.parse_args()
+
+	os.chdir(args.parent)
+	if os.path.isfile("updated"):
+		d = read_updated()
+		diff = datetime.now() - d
+		if diff.days >= 1:
+			print "Updating git"
+			subprocess.call(['git','pull'])
+			write_updated()
+	else:
+		write_updated()
 
 	root = Tk()
 	root.geometry('500x500')
