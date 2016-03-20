@@ -1,1 +1,3 @@
 # pydict
+
+install tk inter
